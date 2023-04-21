@@ -1,0 +1,106 @@
+from typing import Any
+
+class Stack:
+     # Inicializa a lista vazia, nesse caso a lista aceita qualquer coisa
+     def __init__(self) -> None:
+         self.items = []
+
+     # Verifica se a pilha está vazia
+     def empty(self) -> bool:
+         return self.items == []
+
+     # Adiciona um item na pilha
+     def push(self, item) -> None:
+         self.items.append(item)
+
+     # Retira um item da pilha
+     def pop(self) -> Any:
+         if self.items == []: # Pilha vazia
+            raise RuntimeError("Pilha vazia!!")
+    
+         return self.items.pop()
+
+     # Enxerga o topo da pilha, na literatura também pode ser encontrado como peek()
+     # ou stackpop
+     def top(self) -> Any:
+         if self.items == []: # Pilha vazia
+            raise RuntimeError("Pilha vazia!!")
+
+         return self.items[len(self.items)-1]
+
+     # Retorna o tamanho da pilha
+     def size(self) -> int:
+         return len(self.items)
+
+    # Apenas para fins de depuração. Imprime todo o conteúdo da pilha
+     def print(self) -> None: 
+         print(self.items)
+
+class Carta:
+    def __init__(self, valor, naipe): # método construtor da classe, que é chamado quando uma nova instância da classe é criada.
+        self.valor = valor
+        self.naipe = naipe
+        
+    def __str__(self):  # é chamado quando uma instância da classe é convertida para uma string
+        return f"{self.valor} de {self.naipe}" #   O f no início da string indica que a string é formatada e as chaves {}
+
+
+class Baralho:
+    def __init__(self):
+        self.cartas = []
+
+    def __len__(self):  # A função __len__ é chamada e retorna o número de cartas do baralho.
+      return len(self.cartas)
+
+    # outros métodos da classe...
+    def adiciona_carta(self, carta):
+      self.cartas.append(carta)
+
+baralho = Baralho() # criando um baralho, o original
+baralho_invertido = Baralho() # baralho invertido
+normal = Stack() # pilha que pega os termos da lista porem não é o bastante para inverte-lo
+inversor = Stack() # inversor
+
+naipes = ["Ouros","Espadas","Copas","Paus"] # definição dos naipes
+for valor in range(1, 14): # definindo os valores formais das cartas especiais 
+    if valor == 1:
+        valor_str = "Ás"
+    elif valor == 11:
+        valor_str = "Valete"
+    elif valor == 12:
+        valor_str = "Dama"
+    elif valor == 13:
+        valor_str = "Rei"
+    else:
+        valor_str = str(valor)  # a função str entrega o valor em formato de string.
+    for naipe in naipes:
+        carta = Carta(valor_str, naipe)
+        baralho.adiciona_carta(carta)
+
+# adiciona cartas ao baralho...
+print("Baralho antes de inverter:")
+for carta in baralho.cartas:
+    print(carta) # mostra todas as cartas que existem no baralho em ordem
+
+for i in range(len(baralho)):
+  normal.push(baralho.cartas.pop()) 
+  # ao tamanho do baralho insere os itens na pilha 'normal', porem se insere (R,Q,J..)
+  # em uma lista o primeiro que entra é o primeiro que sai
+  # em uma pilha o primeiro que entra é o ultimo que sai 
+
+while not normal.empty():
+  inversor.push(normal.top())
+  # então colocamos um inversor que vai pegar o ultimo termo da pilha anterior 
+  # e coloca-lo como o seu primeiro.
+  normal.pop()
+
+while not inversor.empty():
+  baralho_invertido.adiciona_carta(inversor.top())
+  inversor.pop()
+  # por fim criamos uma lista onde colocamos os valores invertidos para que possa
+  # ser percorrido com mais facilidade
+
+print("\n#########  INVERTENDO  ##########################\n")
+
+for carta in baralho_invertido.cartas:
+    print(carta)
