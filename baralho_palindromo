@@ -1,0 +1,155 @@
+import random
+from typing import Any
+
+class Stack:
+     # Inicializa a lista vazia, nesse caso a lista aceita qualquer coisa
+     def __init__(self) -> None:
+         self.items = []
+
+     # Verifica se a pilha está vazia
+     def empty(self) -> bool:
+         return self.items == []
+
+     # Adiciona um item na pilha
+     def push(self, item) -> None:
+         self.items.append(item)
+
+     # Retira um item da pilha
+     def pop(self) -> Any:
+         if self.items == []: # Pilha vazia
+            raise RuntimeError("Pilha vazia!!")
+    
+         return self.items.pop()
+
+     # Enxerga o topo da pilha, na literatura também pode ser encontrado como peek()
+     # ou stackpop
+     def top(self) -> Any:
+         if self.items == []: # Pilha vazia
+            raise RuntimeError("Pilha vazia!!")
+
+         return self.items[len(self.items)-1]
+
+     # Retorna o tamanho da pilha
+     def size(self) -> int:
+         return len(self.items)
+
+    # Apenas para fins de depuração. Imprime todo o conteúdo da pilha
+     def print(self) -> None: 
+         print(self.items)
+
+class Carta:
+    def __init__(self, valor, naipe): # método construtor da classe, que é chamado quando uma nova instância da classe é criada.
+        self.valor = valor
+        self.naipe = naipe
+        
+    def __str__(self):  # é chamado quando uma instância da classe é convertida para uma string
+        return f"{self.valor} de {self.naipe}" #   O f no início da string indica que a string é formatada e as chaves {}
+
+
+class Baralho:
+    def __init__(self): # Essa função é o método construtor da classe Baralho.
+        self.cartas = []
+   
+    def __len__(self):  # A função __len__ é chamada e retorna o número de cartas do baralho.
+      return len(self.cartas)
+        
+    def adiciona_carta(self, carta):  # Essa função adiciona uma carta ao baralho
+        self.cartas.append(carta)
+
+
+baralho = Baralho()
+
+naipes = ["Ouros","Espadas","Copas","Paus"] # definição dos naipes
+for valor in range(1, 14): # definindo os valores formais das cartas especiais 
+    if valor == 1:
+        valor_str = "Ás"
+    elif valor == 11:
+        valor_str = "Valete"
+    elif valor == 12:
+        valor_str = "Dama"
+    elif valor == 13:
+        valor_str = "Rei"
+    else:
+        valor_str = str(valor)  # a função str entrega o valor em formato de string.
+    for naipe in naipes:
+        carta = Carta(valor_str, naipe)
+        baralho.adiciona_carta(carta)
+
+vermelho = Stack()
+preto = Stack()
+
+for a in range(len(baralho.cartas)):
+  if len(baralho.cartas) == 0:
+    break
+
+  # o que pensei aqui foi basicamente o seguinte, para fazer o baralho fizemos uma lista,
+  # e ela esta toda arrumada da segunte maneira: exemplo(2 de espadas, 2 de ouros, 2 de paus,
+  # 2 de copas)
+
+  preto.push(baralho.cartas.pop()) # espadas
+  vermelho.push(baralho.cartas.pop()) # ouros
+  preto.push(baralho.cartas.pop()) # paus 
+  vermelho.push(baralho.cartas.pop()) # copas
+
+   # checagem de uma pilha com um baralho vermelho (ouros e copas),
+   # e outro, preto (espadas e paus)...
+'''
+while not preto.empty():
+  print(preto.top())
+  preto.pop()
+
+while not vermelho.empty():
+  print(vermelho.top())
+  vermelho.pop()
+'''
+palindromo = Stack() # pilha para o palindromo 
+brl_vermelho = Baralho() # baralho na cor vermelha
+brl_preto = Baralho() # barlho na cor preta
+
+for i in range(vermelho.size()): # criei uma partição vermelha para que possamos dividir o baralho em naipes vermelhos
+  brl_vermelho.adiciona_carta(vermelho.top())
+  vermelho.pop() # o baralho de partição vermelha pega o topo da pilha vermelha, logo após isso a pilha vermelha discarta um item
+
+for i in range(preto.size()): # e em naipes pretos
+  brl_preto.adiciona_carta(preto.top())
+  preto.pop() # o baralho de partição preta pega o topo da pilha preta, logo após isso a pilha preta discarta um item
+
+encontrou_palindromo = False  # criei isso para fazer um loop para não ficar tendo que repetir a ação de debugar toda vez
+falhas = 0                    # além de que é interessante ver quantas vezes houve a validação 
+                              
+while not encontrou_palindromo:
+ 
+  i = random.randint(0,48)  # i é um numero aleatorio, preferencialmente par, mas depois filtramos ( EX. 26)
+  j = i # j = 26
+
+  # aqui então nos filtramos e dizemos que :
+    # primeio o (i + 4) que sera o maior valor não pode ultrapassar o tamanho do baralho vermelho ou o (j + 3) do que o baralho preto.
+    # segundo o numero deverá ser par.(divisão por dois = 0)
+  if i + 4 >= len(brl_vermelho) or (j + 3 >= len(brl_preto) and i %2 != 0):
+    falhas += 1
+    # terceiro imaginemos que o (i) seja 4, entao cartas[i] = 4, logo cartas[i+1] tem que ser = 4
+    # ja que cada carta tem dois naipes da mesma cor.
+    # e o numero 'par' seria por causa de: (i)->4 = 4 de Ouros, (i)->5 = 4 de Copas 
+  elif brl_vermelho.cartas[i].valor != brl_vermelho.cartas[i+1].valor:
+    falhas += 1
+
+    # a mesma regra para o preto
+  elif brl_preto.cartas[j+2].valor != brl_preto.cartas[j+3].valor:
+    falhas += 1
+  else:
+    # supondo que o numero sorteado seja 4
+    
+    palindromo.push(brl_vermelho.cartas[i])     # 4 de Ouros 
+    palindromo.push(brl_preto.cartas[j+2])      # 5 de Espadas
+    palindromo.push(brl_vermelho.cartas[i+4])   # 6 de Ouros
+    palindromo.push(brl_preto.cartas[j+3])      # 5 de Paus
+    palindromo.push(brl_vermelho.cartas[i+1])   # 4 de Copas
+
+    # caso encontre valores que sejam Palindromos sai do loop
+    encontrou_palindromo = True
+
+print("Tentativas feitas até o resultado : ", falhas)
+print("\n####################################################\n")
+for g in range(palindromo.size()):
+    print(palindromo.top())
+    palindromo.pop()
