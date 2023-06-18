@@ -1,0 +1,179 @@
+import random
+
+## definição da classe nó aqui definimos os principais membros
+## dos nós
+class no:
+    def __init__(self, elemento):
+        # o elemento que vai ser aquele que guarda o valor,
+        # caso não tenha ele apresentara o endereço de memoria
+        self.elemento = elemento
+        # as pontas da direita e esquerda que definimos como nulas
+        self.esquerda = None
+        self.direita = None
+
+    def print(self):
+        print(self.elemento)
+
+#então temos a primeira classe que é a de inclusão
+#nela vamos pegar o no raiz(_no) e o elemento proposto (e)
+def incluir(_no, e):
+    # se _no for vazio ou seja, seja o primeiro no
+    if _no is None:
+        novo_no = no(e) # cria a classe nó dentro do nó
+        novo_no.elemento = e # seu valor será o de 'e'
+        # e os nós da esquerda e direita ficam nulos
+        novo_no.direita = None
+        novo_no.esquerda = None
+        return novo_no
+    # se não for nulo ele analiza, se a raiz (_no) tiver um valor maior que (e)
+    elif _no.elemento > e:
+        # aqui entra uma recursividade, pois vai reutilizar a proprio metodo
+        # o valor sera incluido a esquerda caso o (e) elemento proposto seja menor que a raiz
+        _no.esquerda = incluir(_no.esquerda, e)
+
+    # se não for nulo ele analiza, se a raiz (_no) tiver um valor menor que (e)
+    elif _no.elemento < e:
+        # o valor sera incluido a direita caso o (e) elemento proposto seja maior que a raiz
+        _no.direita = incluir(_no.direita, e)
+    return _no
+
+#para encontrar o menor elemento da arvore, vamos fazer um while até o final dela
+def menorElemento(_no):
+    #criamos uma variavel para guardar o valor temporario.(nome bem sugestivo kk)
+    temporario = None
+
+    #apos isso fazemos um while, e parada dele sera que quando a esquerda do nó for nulo
+    while _no.esquerda is not None:
+        # o temporario adquire o valor do nó
+        temporario = _no.esquerda
+        # o nó vira o nó da esquerda
+        _no = _no.esquerda
+    temporario.print()
+
+#para encontrar o maior elemento da arvore, vamos fazer um while até o final dela
+def maiorElemento(_no):
+    #criamos uma variavel para guardar o valor temporario.(nome bem sugestivo kk)
+    temporario = None
+
+    #apos isso fazemos um while, e parada dele sera que quando a direita do nó for nulo
+    while _no.direita is not None:
+        # o temporario adquire o valor do nó
+        temporario = _no.direita
+        # o nó vira o nó da direita
+        _no = _no.direita
+    temporario.print()
+
+
+def pesquisar(_no, e):
+    #na função de pesquisar faremos o seguinte
+    # se o nó for nulo, ou seja, não exista nós, retorne falso
+    if _no is None:
+        return False
+    # se o nó for igual ao elemento pesquisado, retorna verdadeiro
+    if _no.elemento == e:
+        return True
+
+    # se o nó for menor que o elemento, ele ira recurssivamente
+    # procurar a direita.
+    elif _no.elemento < e:
+        return pesquisar(_no.direita, e)
+    # se for maior, irá procurar a esquerda
+    elif _no.elemento > e:
+        return pesquisar(_no.esquerda, e)
+
+    # e caso não encontre nada, retorna false
+    return False
+
+# para deletar um nó precisamos verificar se ele possui um sucessor imediato
+# como o laureano falor na aula.
+def deletar(temporario, filho):
+    # se o no da direita não for vazio
+    if filho.direita is not None:
+        # faz a função para o dó da direita
+        deletar(temporario, filho.direita)
+    else:
+        # se não, o temporario adquire o elemento do filho
+        temporario.elemento = filho.elemento
+        # e o nó temporario da esquerda vira o filho da esquerda
+        temporario.esquerda = filho.esquerda
+    return
+
+# a função de exclusao funciona quase igual a função de pesquisa
+def excluir(_no, chave):
+    temporario = None
+    #se o nó não existir, então é informado que o elemento não existe
+    if _no is None:
+        print("Elemento não existe")
+    # se a chave(outra variavel temporaria) for menor que o elemento do nó
+    elif chave < _no.elemento:
+        # aplica a ""pesquisa"" a esquerda.
+        _no.esquerda = excluir(_no.esquerda, chave)
+
+    # se a chave for maior que o elemento do nó
+    elif chave > _no.elemento:
+        # aplica a ""pesquisa"" a direita.
+        _no.direita = excluir(_no.direita, chave)
+    else:
+        # então ele começara a exclusão
+        # o temporario vira o nó
+        temporario = _no
+        # se o lado da direita for vazio
+        if temporario.direita is None:
+            #então ele vai para a esquerda
+            _no = temporario.esquerda
+        # se o da direita for vazio
+        elif temporario.esquerda is None:
+            # então ele vai para a direita
+            _no = temporario.direita
+        else:
+        # quando encontrar ele ira apagar o nó
+            deletar(temporario, temporario.esquerda)
+        del temporario
+    return _no
+
+# e por ultimo a impressão da arvore
+def imprimir(_no, espaco):
+    # isso é só estetica, mas declaramos um espaço base
+    espaco_base = "    "
+    #se não houver nós ele retorna fora
+    if _no is None:
+        return
+    # vai aplicando espaços quanto forem necessarios
+    espaco += espaco_base
+
+    imprimir(_no.direita, espaco)
+    print(espaco + "(" + str(_no.elemento) + ")<")
+    imprimir(_no.esquerda, espaco)
+
+
+##############################################################
+
+raiz = no(random.randint(1, 40))
+
+for _ in range(14):
+    num = random.randint(1, 40)
+    raiz = incluir(raiz, num)
+
+imprimir(raiz, "")
+
+pergunta = input("Qual nó deseja pesquisar? ")
+valor_pesquisa = int(pergunta)
+
+ideia = pesquisar(raiz, valor_pesquisa)
+
+if ideia:
+    print("Valor encontrado na árvore")
+else:
+    print("Valor não encontrado na árvore")
+
+
+delete = input("Qual nó deseja excluir? ")
+val_delete = int(delete)
+
+deletar = excluir(raiz, val_delete)
+imprimir(raiz, "")
+
+print("O maior elemento da árvore é :")
+max = maiorElemento(raiz)
+print("O menor elemento da árvore é :")
+min =menorElemento(raiz)
