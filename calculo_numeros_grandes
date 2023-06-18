@@ -1,0 +1,42 @@
+# Calculadora de numeros grandes.
+
+from collections import deque
+
+numero_1 = deque()
+numero_2 = deque()
+pilha_resultado = deque()
+
+digitos_1 = input("\nDigite o primeiro valor: ")
+digitos_2 = input("\nDigite o segundo valor: ")
+
+for digito in range(len(digitos_1)):
+    numero_1.append(int(digitos_1[digito]))
+
+for digito in range(len(digitos_2)):
+    numero_2.append(int(digitos_2[digito]))
+
+transporte = 0
+resultante = 0
+
+while numero_1 or numero_2:
+
+    if not numero_1:
+        numero_1.append(0)
+
+    if not numero_2:
+        numero_2.append(0)
+
+
+    resultante = numero_1.pop() + numero_2.pop() + transporte
+    transporte = resultante // 10
+
+
+    pilha_resultado.appendleft(resultante % 10)
+
+if transporte > 0:
+    pilha_resultado.appendleft(transporte)
+
+
+print("\npilha_resultado:")
+while pilha_resultado:
+    print(pilha_resultado.popleft(), end="")
